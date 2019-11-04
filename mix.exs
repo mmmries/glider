@@ -47,8 +47,8 @@ defmodule Glider.MixProject do
       # Dependencies for all targets except :host
       {:nerves_runtime, "~> 0.6", targets: @all_targets},
       {:nerves_init_gadget, "~> 0.4", targets: @all_targets},
-      {:bno055, path: "../bno055"},
-      {:pigpiox, "~> 0.1"},
+      {:bno055, path: "../bno055", targets: @all_targets},
+      {:pigpiox, "~> 0.1", targets: @all_targets},
 
       # Dependencies for specific targets
       {:nerves_system_rpi, "~> 1.8", runtime: false, targets: :rpi},
