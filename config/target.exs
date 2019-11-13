@@ -31,7 +31,7 @@ config :nerves_firmware_ssh,
 node_name = if Mix.env() != :prod, do: "glider"
 
 config :nerves_init_gadget,
-  ifname: "wlan0",
+  ifname: "usb0",
   address_method: :dhcpd,
   mdns_domain: "glider.local",
   node_name: node_name,
