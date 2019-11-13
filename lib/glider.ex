@@ -7,16 +7,17 @@ defmodule Glider do
   end
 
   def init(opts) do
-    :timer.send_interval(50, :refresh)
     bno055 = BNO055.setup(:NDOF)
     opts = Keyword.put(opts, :bno055, bno055)
+    send self(), :refresh
     {:ok, opts}
   end
 
-  @max_up_servo 1800
-  @max_down_servo 1200
-  @max_up_angle 45.0
-  @max_down_angle -45.0
+  @max_up_servo 2000
+  @max_down_servo 1500
+  @max_up_angle 20.0
+  @max_down_angle -20.0
+  @pause_between_sensors_reads 10
 
   def handle_info(:refresh, state) do
     {:ok, %{pitch: pitch}} = Keyword.get(state, :bno055) |> BNO055.orientation()
@@ -25,6 +26,7 @@ defmodule Glider do
     servo_position = ceil((sensor_ratio * (@max_up_servo - @max_down_servo)) + @max_down_servo)
     elevator_pin = Keyword.get(state, :elevator_pin)
     Pigpiox.GPIO.set_servo_pulsewidth(elevator_pin, servo_position)
+    Process.send_after(self(), :refresh, @pause_between_sensors_reads)
     {:noreply, state}
   end
 
