@@ -13,7 +13,7 @@ defmodule Glider.Application do
 
   def children(_target) do
     [
-      {Glider, elevator_pin: 18}
+      {Glider, []}
     ]
   end
 
