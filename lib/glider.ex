@@ -19,7 +19,7 @@ defmodule Glider do
     }
     heading = %Glider.HeadingFeedback{
       desired: 0.0,
-      reversed: false,
+      reversed: true,
       sensor_range: 20.0,
       servo_center: 1500,
       servo_range: 300
