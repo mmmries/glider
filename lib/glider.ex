@@ -5,7 +5,7 @@ defmodule Glider do
   def start_link(opts) do
     GenServer.start_link(__MODULE__, opts, name: __MODULE__)
   end
-  @pause_between_sensors_reads 1000
+  @pause_between_sensors_reads 5
 
   def init(opts) do
     bno055 = BNO055.setup(:NDOF)
@@ -21,7 +21,7 @@ defmodule Glider do
       desired: 0.0,
       reversed: true,
       max_roll: 10.0,
-      servo_center: 1500,
+      servo_center: 1575,
       servo_range: 300
     }
     opts = opts

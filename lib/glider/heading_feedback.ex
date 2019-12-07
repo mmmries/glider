@@ -1,5 +1,4 @@
 defmodule Glider.HeadingFeedback do
-  require Logger
   @moduledoc """
   A module to calculate a desired servo position given the current heading angle (0° to +360°)
   and current roll angle (-180° to +180°)
@@ -18,20 +17,16 @@ defmodule Glider.HeadingFeedback do
   alias Glider.Circle
 
   def servo_pulsewidth(heading, roll, %__MODULE__{}=feedback) do
-    Logger.info("heading: #{heading}, roll: #{roll}")
     heading
     |> Circle.wrap()
     |> heading_difference_from(feedback)
-    |> IO.inspect()
     |> desired_roll(feedback)
-    |> IO.inspect()
     |> roll_diff_ratio(roll, feedback.max_roll)
-    |> IO.inspect()
     |> diff_to_pulsewidth(feedback)
   end
 
   defp desired_roll(heading_diff, %__MODULE__{max_roll: max}) do
-    (heading_diff * 0.5) |> clamp(max)
+    (heading_diff * 1.0) |> clamp(max)
   end
 
   defp diff_to_pulsewidth(roll_diff_ratio, %__MODULE__{}=feedback) do
@@ -51,6 +46,6 @@ defmodule Glider.HeadingFeedback do
   defp clamp(roll, _max), do: roll
 
   defp roll_diff_ratio(desired_roll, current_roll, max) do
-    (desired_roll - current_roll) / max
+    ((desired_roll - current_roll) / max) |> clamp(1.0)
   end
 end
