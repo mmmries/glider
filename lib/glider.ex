@@ -5,7 +5,7 @@ defmodule Glider do
   def start_link(opts) do
     GenServer.start_link(__MODULE__, opts, name: __MODULE__)
   end
-  @pause_between_sensors_reads 10
+  @pause_between_sensors_reads 1000
 
   def init(opts) do
     bno055 = BNO055.setup(:NDOF)
@@ -46,7 +46,7 @@ defmodule Glider do
 
     if reading_reasonable?(heading) and reading_reasonable?(roll) do
       heading_feedback = Keyword.get(state, :heading)
-      pulsewidth = Glider.HeadingFeedback.servo_pulsewidth(heading, heading_feedback)
+      pulsewidth = Glider.HeadingFeedback.servo_pulsewidth(heading, roll, heading_feedback)
       Pigpiox.GPIO.set_servo_pulsewidth(@heading_pin, pulsewidth)
     end
 
