@@ -5,7 +5,7 @@ defmodule Glider do
   def start_link(opts) do
     GenServer.start_link(__MODULE__, opts, name: __MODULE__)
   end
-  @pause_between_sensors_reads 5
+  @pause_between_sensors_reads 10
 
   def init(opts) do
     bno055 = BNO055.setup(:NDOF)
@@ -20,7 +20,7 @@ defmodule Glider do
     heading = %Glider.HeadingFeedback{
       desired: 0.0,
       reversed: true,
-      sensor_range: 20.0,
+      max_roll: 10.0,
       servo_center: 1500,
       servo_range: 300
     }
@@ -35,17 +35,26 @@ defmodule Glider do
   @elevator_pin 18
   @heading_pin 13
   def handle_info(:refresh, state) do
-    {:ok, %{heading: heading, pitch: pitch}} = Keyword.get(state, :bno055) |> BNO055.orientation()
+    {:ok, orientation} = Keyword.get(state, :bno055) |> BNO055.orientation()
+    %{heading: heading, pitch: pitch, roll: roll} = orientation
 
-    pitch_feedback = Keyword.get(state, :pitch)
-    pulsewidth = Glider.PitchFeedback.servo_pulsewidth(pitch, pitch_feedback)
-    Pigpiox.GPIO.set_servo_pulsewidth(@elevator_pin, pulsewidth)
+    if reading_reasonable?(pitch) do
+      pitch_feedback = Keyword.get(state, :pitch)
+      pulsewidth = Glider.PitchFeedback.servo_pulsewidth(pitch, pitch_feedback)
+      Pigpiox.GPIO.set_servo_pulsewidth(@elevator_pin, pulsewidth)
+    end
 
-    heading_feedback = Keyword.get(state, :heading)
-    pulsewidth = Glider.HeadingFeedback.servo_pulsewidth(heading, heading_feedback)
-    Pigpiox.GPIO.set_servo_pulsewidth(@heading_pin, pulsewidth)
+    if reading_reasonable?(heading) and reading_reasonable?(roll) do
+      heading_feedback = Keyword.get(state, :heading)
+      pulsewidth = Glider.HeadingFeedback.servo_pulsewidth(heading, heading_feedback)
+      Pigpiox.GPIO.set_servo_pulsewidth(@heading_pin, pulsewidth)
+    end
 
     Process.send_after(self(), :refresh, @pause_between_sensors_reads)
     {:noreply, state}
   end
+
+  defp reading_reasonable?(reading) when reading < -180.0, do: false
+  defp reading_reasonable?(reading) when reading > 390.0, do: false
+  defp reading_reasonable?(_reading), do: true
 end
