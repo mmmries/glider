@@ -26,7 +26,7 @@ defmodule Glider.HeadingFeedback do
   end
 
   defp desired_roll(heading_diff, %__MODULE__{max_roll: max}) do
-    (heading_diff * 1.0) |> clamp(max)
+    (heading_diff * 0.15) |> clamp(max)
   end
 
   defp diff_to_pulsewidth(roll_diff_ratio, %__MODULE__{}=feedback) do
