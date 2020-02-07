@@ -12,7 +12,7 @@ defmodule Glider.Elevon do
 
   @doc "represent how far the nose is up-or-down in terms of a servo pulsewidth offset"
   def vertical_bias(%__MODULE__{desired_pitch: desired}, %{pitch: actual}) do
-    diff = clamp(desired - actual, 30.0)
+    diff = clamp(actual - desired, 30.0)
     {diff * 10, diff * 10}
   end
 

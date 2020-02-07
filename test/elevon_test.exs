@@ -13,28 +13,28 @@ defmodule Glider.ElevonTest do
     config = create_config()
     orientation = %{heading: 0.0, pitch: -5.0, roll: 0.0}
     assert {left, right} = Elevon.feedback(config, orientation)
-    assert_in_delta left, 1550, 10
-    assert_in_delta right, 1450, 10
+    assert_in_delta left, 1450, 10
+    assert_in_delta right, 1550, 10
 
     config = create_config(%{desired_pitch: 5.0})
     orientation = %{heading: 0.0, pitch: 0.0, roll: 0.0}
     assert {left, right} = Elevon.feedback(config, orientation)
-    assert_in_delta left, 1550, 10
-    assert_in_delta right, 1450, 10
+    assert_in_delta left, 1450, 10
+    assert_in_delta right, 1550, 10
   end
 
   test "on-course, nose up => push down" do
     config = create_config()
     orientation = %{heading: 0.0, pitch: 5.0, roll: 0.0}
     assert {left, right} = Elevon.feedback(config, orientation)
-    assert_in_delta left, 1450, 10
-    assert_in_delta right, 1550, 10
+    assert_in_delta left, 1550, 10
+    assert_in_delta right, 1450, 10
 
     config = create_config(%{desired_pitch: -5.0})
     orientation = %{heading: 0.0, pitch: 0.0, roll: 0.0}
     assert {left, right} = Elevon.feedback(config, orientation)
-    assert_in_delta left, 1450, 10
-    assert_in_delta right, 1550, 10
+    assert_in_delta left, 1550, 10
+    assert_in_delta right, 1450, 10
   end
 
   test "on-course, leaning right => roll left" do
@@ -57,8 +57,8 @@ defmodule Glider.ElevonTest do
     config = create_config()
     orientation = %{heading: 0.0, pitch: -5.0, roll: 5.0}
     assert {left, right} = Elevon.feedback(config, orientation)
-    assert_in_delta left, 1600, 10
-    assert_in_delta right, 1500, 10
+    assert_in_delta left, 1500, 10
+    assert_in_delta right, 1600, 10
   end
 
   defp create_config(settings \\ %{}) do
