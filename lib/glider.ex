@@ -1,7 +1,7 @@
 defmodule Glider do
   use GenServer
   require Logger
-  alias Glider.Elevon
+  alias Glider.{PitchFeedback, HeadingFeedback}
   alias BNO055.Smoothing
 
   def start_link(opts) do
@@ -10,34 +10,46 @@ defmodule Glider do
 
   def init(opts) do
     bno055 = BNO055.setup(:NDOF)
-    elevon = %Elevon{
-      desired_heading: 0.0,
-      desired_pitch: -4.0,
-      left_center: 1430,
-      left_direction: -1,
-      right_center: 1470,
-      right_direction: 1,
+    pitch = %PitchFeedback{
+      offset: -1.0,
+      reversed: false,
+      sensor_ceiling: 20.0,
+      sensor_floor: -20.0,
+      servo_max: 1900,
+      servo_min: 1100
+    }
+    heading = %HeadingFeedback{
+      desired: 0.0,
+      reversed: true,
+      max_roll: 15.0,
+      servo_center: 1450,
+      servo_range: 300
     }
     opts = opts
       |> Keyword.put(:bno055, bno055)
-      |> Keyword.put(:elevon, elevon)
+      |> Keyword.put(:pitch, pitch)
+      |> Keyword.put(:heading, heading)
       |> Keyword.put(:smoothing, Smoothing.init())
     send self(), :refresh
     {:ok, opts}
   end
 
   @pause_between_sensors_reads 33
-  @left_pin 13
-  @right_pin 18
+  @elevator_pin 13
+  @rudder_pin 12
   def handle_info(:refresh, state) do
     {:ok, orientation} = Keyword.get(state, :bno055) |> BNO055.orientation()
     state = if orientation_reasonable?(orientation) do
-
       {smoothing, orientation} = Keyword.get(state, :smoothing) |> Smoothing.reading(orientation)
-      {left, right} = state |> Keyword.get(:elevon) |> Elevon.feedback(orientation)
 
-      Pigpiox.GPIO.set_servo_pulsewidth(@left_pin, left)
-      Pigpiox.GPIO.set_servo_pulsewidth(@right_pin, right)
+      pitch_feedback = Keyword.get(state, :pitch)
+      pulsewidth = PitchFeedback.servo_pulsewidth(orientation.pitch, pitch_feedback)
+      Pigpiox.GPIO.set_servo_pulsewidth(@elevator_pin, pulsewidth)
+
+      heading_feedback = Keyword.get(state, :heading)
+      pulsewidth = HeadingFeedback.servo_pulsewidth(orientation.heading, orientation.roll, heading_feedback)
+      Pigpiox.GPIO.set_servo_pulsewidth(@rudder_pin, pulsewidth)
+
       Keyword.put(state, :smoothing, smoothing)
     else
       Logger.error("Invalid Orientation Data")

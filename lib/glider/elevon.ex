@@ -1,5 +1,5 @@
 defmodule Glider.Elevon do
-  alias Glider.Circle
+  alias BNO055.Circle
   defstruct [:desired_heading, :desired_pitch, :left_center, :left_direction, :right_center, :right_direction]
 
   def feedback(%__MODULE__{}=config, orientation) do
