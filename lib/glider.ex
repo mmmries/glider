@@ -11,17 +11,18 @@ defmodule Glider do
   def init(opts) do
     bno055 = BNO055.setup(:NDOF)
     pitch = %PitchFeedback{
-      offset: -1.0,
+      offset: 8.0,
       reversed: false,
       sensor_ceiling: 20.0,
       sensor_floor: -20.0,
-      servo_max: 1900,
-      servo_min: 1100
+      servo_max: 1750,
+      servo_min: 1250
     }
     heading = %HeadingFeedback{
       desired: 0.0,
       reversed: true,
       max_roll: 15.0,
+      roll_offset: 5.0,
       servo_center: 1450,
       servo_range: 300
     }
@@ -41,6 +42,7 @@ defmodule Glider do
     {:ok, orientation} = Keyword.get(state, :bno055) |> BNO055.orientation()
     state = if orientation_reasonable?(orientation) do
       {smoothing, orientation} = Keyword.get(state, :smoothing) |> Smoothing.reading(orientation)
+      #Logger.info("orientation: #{inspect(orientation)}")
 
       pitch_feedback = Keyword.get(state, :pitch)
       pulsewidth = PitchFeedback.servo_pulsewidth(orientation.pitch, pitch_feedback)

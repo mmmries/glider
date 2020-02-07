@@ -10,17 +10,18 @@ defmodule Glider.HeadingFeedback do
   defstruct desired: 0.0,
             reversed: false,
             max_roll: 10.0,
+            roll_offset: 0.0,
             servo_center: 1500,
             servo_range: 300
 
-  alias Glider.Circle
+  alias BNO055.Circle
 
   def servo_pulsewidth(heading, roll, %__MODULE__{}=feedback) do
     heading
     |> Circle.wrap()
     |> heading_difference_from(feedback)
     |> desired_roll(feedback)
-    |> roll_diff_ratio(roll, feedback.max_roll)
+    |> roll_diff_ratio(roll + feedback.roll_offset, feedback.max_roll)
     |> diff_to_pulsewidth(feedback)
   end
 
