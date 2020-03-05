@@ -1,6 +1,8 @@
 # Glider
 
-**TODO: Add description**
+A self-piloting nerves project
+
+[![A self-piloting nerves project ](https://img.youtube.com/vi/46fZEm4SWL8/0.jpg)](https://www.youtube.com/watch?v=46fZEm4SWL8&feature=emb_logo)
 
 ## Targets
 
